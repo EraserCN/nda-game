@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="./style.css">
 </head>
 <body class="crt-enabled">
-  <!-- 外部物理机箱包边与控制面板 -->
+  <!-- 外部物理机箱与控制面板 -->
   <div class="chassis">
     <!-- 顶部铭牌与状态指示灯 -->
     <header class="chassis-header">
@@ -39,7 +39,7 @@
 
     <!-- CRT 屏幕内胆 -->
     <div class="screen-frame">
-      <!-- CRT 特效层（扫描线、晕影、弧形畸变） -->
+      <!-- CRT 特效层（扫描线、晕影、电平抖动） -->
       <div class="crt-overlay" id="crt-overlay">
         <div class="scanlines"></div>
         <div class="vignette"></div>
@@ -48,27 +48,29 @@
 
       <!-- 终端显示内容区域 -->
       <main class="terminal-display" id="terminal-display">
-        <!-- 顶部系统状态栏 -->
+        <!-- 顶部系统状态 HUD 栏 -->
         <div class="sys-bar">
           <div class="sys-left">
-            <span class="sys-field">UNIT: <strong>INSPECTOR-404</strong></span>
-            <span class="sys-field">DEPT: <strong>MEMORY_REDUCTION</strong></span>
+            <span class="sys-field"><strong id="hud-day">DAY 1 / 4</strong></span>
+            <span class="sys-field hud-stat" id="hud-phase">ON DUTY</span>
+            <span class="sys-field">BALANCE: <strong id="hud-credits" style="color:var(--p-amber);">200 CR</strong></span>
           </div>
           <div class="sys-right">
+            <span class="sys-field">妹妹病况: <strong id="hud-sister" class="hud-stat" style="color:var(--p-green);">稳定</strong></span>
+            <span class="sys-field">共情偏差: <strong id="hud-empathy">0</strong></span>
             <span class="sys-field" id="clock-display">1988-11-14 23:42:01</span>
-            <span class="sys-field">SESSION: <strong id="quota-display">0/3 PROCESSED</strong></span>
           </div>
         </div>
 
-        <!-- 游戏核心内容区 (动态加载视图) -->
+        <!-- 游戏核心内容区 (动态加载工单/公寓生活) -->
         <div class="workspace-viewport" id="workspace">
-          <!-- 动态加载各关卡工单与终端交互 -->
+          <!-- 动态注入各关卡内容 -->
         </div>
 
         <!-- 底部快速命令与状态输出栏 -->
         <footer class="cli-bar">
           <div class="prompt-symbol">&gt;&gt;</div>
-          <input type="text" id="cli-input" spellcheck="false" autocomplete="off" placeholder="键入指令 (输入 HELP 查看指令列表，按 ENTER 执行)..." />
+          <input type="text" id="cli-input" spellcheck="false" autocomplete="off" placeholder="键入指令 (输入 HELP 查看指令，按 ENTER 执行)..." />
           <div class="status-indicator" id="sys-status">SYS_READY</div>
         </footer>
       </main>
@@ -80,7 +82,7 @@
         <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
       </div>
       <div class="footer-meta">
-        <span>CONFIDENTIAL HARDWARE // LICENSED TO UNITED NEURAL TRUST</span>
+        <span>UNITED NEURAL TRUST // TERMINAL MODEL-88</span>
         <span>DESIGNED &amp; DEVELOPED BY <strong>@EraserCN</strong></span>
       </div>
     </footer>
@@ -90,27 +92,25 @@
   <div class="modal-backdrop" id="modal-help">
     <div class="modal-box">
       <div class="modal-header">
-        <span>== OPERATION MANUAL // 操作规程 88-B ==</span>
+        <span>== OPERATION MANUAL // 审查员操作规程 ==</span>
         <button class="modal-close" id="btn-modal-close">[X]</button>
       </div>
       <div class="modal-body">
-        <p><strong>【岗位职责】</strong><br>
-        您是神经折旧管理局第 4 级兼职审查员。您的使命是维护社会情绪稳态，通过技术手段为尊贵客户剥离、消解并格式化危险创伤记忆。</p>
-        <p><strong>【核心操作】</strong><br>
-        1. <strong>波形切除（Waveform Scalpel）</strong>：拖动频段滑块截断不合规的情绪震荡峰值，寻找隐藏谐波。<br>
-        2. <strong>矛盾复核（Contradiction Audit）</strong>：比对客户自述与物理日志，点击标出谎言与破绽。<br>
-        3. <strong>意识质询（Persona Query）</strong>：在命令行对提取的意识切片输入关键词（如 KEYWORD: xxx）获取密钥。<br>
-        4. <strong>命令行快捷键</strong>：<br>
-           - <code>HELP</code>：查看所有指令<br>
-           - <code>CLEAR</code>：清空工作台记录<br>
-           - <code>STATUS</code>：查看当前审查进度<br>
-           - <code>CRT</code>：切换 CRT 滤镜与扫描线<br>
-           - <code>AUDIO</code>：切换声音开关<br>
-           - <code>REBOOT</code>：重新加载终端系统
+        <p><strong>【核心使命与生存循环】</strong><br>
+        本作为多日制长流程叙事解谜体验（约 25~35 分钟）。您需经历“白天审查工单”与“夜间公寓生存”的双重考验：<br>
+        1. <strong>白天工位（On Duty）</strong>：通过波形手术刀平抑情绪尖峰、核对矛盾档案、质询意识切片；顺从算法可赚取足额报酬，同情留存真相将被系统警告并罚款。<br>
+        2. <strong>夜晚生活（Off Duty）</strong>：下班回到胶囊公寓，必须妥善支配报酬支付房租、寄送重病妹妹的神经拮抗剂、选服情绪药丸、播放磁带答录机，并翻阅日记发现异常线索。
         </p>
-        <p><strong>【系统与版权说明】</strong><br>
-        本系统采用纯原生静态技术架构构建，无任何境外不稳定外链依赖，可无缝部署于 GitHub Pages。<br>
-        <strong>作者署名：@EraserCN</strong>
+        <p><strong>【快捷键与系统指令】</strong><br>
+        - <code>C</code> 键：随时开关 CRT 滤镜与扫描线<br>
+        - <code>M</code> 键：随时开启/静音声音合成器<br>
+        - <code>QUERY [关键词]</code>：在意识切片质询环节发送探针关键词<br>
+        - <code>STATUS</code>：查看当前收支与身体理智指数<br>
+        - <code>CLEAR</code> / <code>REBOOT</code>：刷新工作台 / 重置会话
+        </p>
+        <p><strong>【技术说明】</strong><br>
+        纯原生离线静态技术栈，零外部境外外链依赖，原生支持 GitHub Pages。<br>
+        <strong>作者与架构署名：@EraserCN</strong>
         </p>
       </div>
     </div>

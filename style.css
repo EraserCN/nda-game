@@ -1,6 +1,6 @@
 /* ==========================================================================
    NDA: Neural Deprecation Agency // 神经折旧管理局
-   Retro-Futuristic Terminal Stylesheet
+   Expanded Narrative & Simulation Stylesheet (30-Min Playthrough Edition)
    Designed by @EraserCN
    ========================================================================== */
 
@@ -11,8 +11,11 @@
   --p-green-dark: #0b3d18;
   --p-amber: #ffb833;
   --p-amber-glow: rgba(255, 184, 51, 0.5);
+  --p-amber-dark: #3a2805;
   --p-red: #ff3344;
   --p-red-glow: rgba(255, 51, 68, 0.5);
+  --p-cyan: #33e6ff;
+  --p-cyan-glow: rgba(51, 230, 255, 0.5);
   --bg-deep: #060d08;
   --bg-crt-glass: #09140b;
   --bezel-color: #222524;
@@ -45,9 +48,9 @@ html, body {
    ========================================================================== */
 .chassis {
   width: 96vw;
-  max-width: 1200px;
-  height: 94vh;
-  max-height: 860px;
+  max-width: 1240px;
+  height: 95vh;
+  max-height: 890px;
   background: linear-gradient(145deg, #2b302d 0%, #1a1c1b 100%);
   border: 4px solid var(--bezel-border);
   border-radius: 16px;
@@ -57,7 +60,7 @@ html, body {
     inset 0 -4px 8px var(--bezel-shadow);
   display: flex;
   flex-direction: column;
-  padding: 14px 18px;
+  padding: 12px 18px;
   position: relative;
 }
 
@@ -65,7 +68,7 @@ html, body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding-bottom: 10px;
+  padding-bottom: 8px;
   border-bottom: 2px solid #333835;
 }
 
@@ -153,7 +156,7 @@ html, body {
   flex: 1;
   background-color: #040905;
   border-radius: 12px;
-  margin: 10px 0;
+  margin: 8px 0;
   position: relative;
   overflow: hidden;
   border: 3px solid #121614;
@@ -199,7 +202,6 @@ body.crt-enabled .crt-overlay {
   border-radius: 8px;
 }
 
-/* 轻微电平闪烁 */
 @keyframes crt-flicker {
   0% { opacity: 0.97; }
   50% { opacity: 1; }
@@ -214,7 +216,6 @@ body.crt-enabled .crt-overlay {
   animation: crt-flicker 0.15s infinite;
 }
 
-/* 开启 CRT 时的文字磷光余辉 */
 body.crt-enabled .terminal-display {
   text-shadow: 0 0 4px var(--p-green-glow);
 }
@@ -233,33 +234,54 @@ body.crt-enabled .screen-frame {
   background-color: var(--bg-crt-glass);
   display: flex;
   flex-direction: column;
-  padding: 14px 18px;
+  padding: 12px 16px;
   position: relative;
   z-index: 2;
   overflow: hidden;
 }
 
+/* 状态 HUD 栏 */
 .sys-bar {
   display: flex;
   justify-content: space-between;
-  padding-bottom: 8px;
+  align-items: center;
+  padding-bottom: 6px;
   border-bottom: 1px dashed var(--p-green-dim);
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   letter-spacing: 1px;
 }
 
-.sys-field {
-  margin-right: 16px;
+.sys-left, .sys-right {
+  display: flex;
+  gap: 12px;
+  align-items: center;
 }
 
 .sys-field strong {
   color: #fff;
 }
 
+.hud-stat {
+  padding: 1px 6px;
+  border-radius: 2px;
+  background: rgba(10, 30, 15, 0.7);
+  border: 1px solid var(--p-green-dim);
+}
+
+.hud-stat.danger {
+  border-color: var(--p-red);
+  color: var(--p-red);
+}
+
+.hud-stat.warning {
+  border-color: var(--p-amber);
+  color: var(--p-amber);
+}
+
 .workspace-viewport {
   flex: 1;
   overflow-y: auto;
-  margin: 10px 0;
+  margin: 8px 0;
   display: flex;
   flex-direction: column;
   position: relative;
@@ -279,7 +301,7 @@ body.crt-enabled .screen-frame {
   display: flex;
   align-items: center;
   border-top: 1px dashed var(--p-green-dim);
-  padding-top: 8px;
+  padding-top: 6px;
   gap: 8px;
 }
 
@@ -299,13 +321,13 @@ body.crt-enabled .screen-frame {
   border: none;
   outline: none;
   font-family: var(--font-mono);
-  font-size: 0.9rem;
+  font-size: 0.88rem;
   color: #fff;
   caret-color: var(--p-green);
 }
 
 .status-indicator {
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   background-color: var(--p-green-dark);
   color: var(--p-green);
   padding: 3px 8px;
@@ -314,12 +336,12 @@ body.crt-enabled .screen-frame {
 }
 
 /* ==========================================================================
-   关卡组件：工单与双屏工作台
+   关卡组件与双屏工作台 (Workstation Components)
    ========================================================================== */
 .view-container {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
   animation: fadeIn 0.3s ease;
 }
 
@@ -328,16 +350,15 @@ body.crt-enabled .screen-frame {
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* 引导/过场终端文本 */
 .intro-terminal {
   padding: 10px;
   line-height: 1.6;
 }
 
 .intro-title {
-  font-size: 1.15rem;
+  font-size: 1.1rem;
   font-weight: bold;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
   color: var(--p-green);
   border-left: 4px solid var(--p-green);
   padding-left: 8px;
@@ -345,31 +366,30 @@ body.crt-enabled .screen-frame {
 
 .intro-meta {
   color: #8cd49f;
-  margin-bottom: 12px;
-  font-size: 0.85rem;
+  margin-bottom: 10px;
+  font-size: 0.82rem;
 }
 
 .stamp-box {
   display: inline-block;
   border: 2px solid var(--p-red);
   color: var(--p-red);
-  padding: 4px 10px;
+  padding: 3px 8px;
   font-weight: 800;
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   transform: rotate(-3deg);
-  margin: 10px 0;
+  margin: 6px 0;
   text-shadow: 0 0 6px var(--p-red-glow);
 }
 
-/* 双栏工作布局 */
 .dual-pane {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 14px;
+  gap: 12px;
   min-height: 380px;
 }
 
-@media (max-width: 860px) {
+@media (max-width: 900px) {
   .dual-pane {
     grid-template-columns: 1fr;
   }
@@ -379,32 +399,31 @@ body.crt-enabled .screen-frame {
   border: 1px solid var(--p-green-dim);
   background-color: rgba(6, 16, 9, 0.7);
   border-radius: 4px;
-  padding: 12px;
+  padding: 10px;
   display: flex;
   flex-direction: column;
 }
 
 .pane-title {
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   font-weight: bold;
   color: var(--p-green);
   border-bottom: 1px solid var(--p-green-dim);
-  padding-bottom: 6px;
-  margin-bottom: 10px;
+  padding-bottom: 4px;
+  margin-bottom: 8px;
   display: flex;
   justify-content: space-between;
 }
 
-/* 波形 Canvas 分析仪 */
 .waveform-box {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
 }
 
 .scope-canvas {
   width: 100%;
-  height: 150px;
+  height: 140px;
   background-color: #030804;
   border: 1px solid var(--p-green-dark);
   border-radius: 3px;
@@ -414,34 +433,33 @@ body.crt-enabled .screen-frame {
   display: flex;
   flex-direction: column;
   gap: 6px;
-  margin-top: 6px;
+  margin-top: 4px;
 }
 
 .slider-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  font-size: 0.78rem;
+  font-size: 0.75rem;
 }
 
 .slider-row input[type="range"] {
-  width: 60%;
+  width: 58%;
   accent-color: var(--p-green);
   cursor: pointer;
 }
 
-/* 文档对比标记模式 (Clickable Contradiction) */
 .doc-content {
   font-size: 0.82rem;
-  line-height: 1.6;
+  line-height: 1.55;
   color: #bcebc7;
 }
 
 .doc-statement {
   background: rgba(15, 35, 20, 0.5);
-  padding: 8px;
+  padding: 7px;
   border-left: 2px solid var(--p-green-dim);
-  margin-bottom: 8px;
+  margin-bottom: 7px;
 }
 
 .interactive-clue {
@@ -465,12 +483,12 @@ body.crt-enabled .screen-frame {
   text-decoration: line-through;
 }
 
-/* 操作决策按钮栏 */
 .action-dock {
-  margin-top: 14px;
+  margin-top: 10px;
   display: flex;
-  gap: 12px;
+  gap: 10px;
   justify-content: flex-end;
+  flex-wrap: wrap;
 }
 
 .btn-terminal {
@@ -478,18 +496,25 @@ body.crt-enabled .screen-frame {
   border: 1px solid var(--p-green);
   color: var(--p-green);
   font-family: var(--font-mono);
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   font-weight: 700;
-  padding: 8px 16px;
+  padding: 7px 14px;
   cursor: pointer;
   border-radius: 3px;
   transition: all 0.15s;
 }
 
-.btn-terminal:hover {
+.btn-terminal:hover:not(:disabled) {
   background-color: var(--p-green);
   color: #000;
   box-shadow: 0 0 10px var(--p-green-glow);
+}
+
+.btn-terminal:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  border-color: #3e5e47;
+  color: #7b9e84;
 }
 
 .btn-terminal.btn-danger {
@@ -498,22 +523,127 @@ body.crt-enabled .screen-frame {
   background-color: rgba(60, 10, 15, 0.4);
 }
 
-.btn-terminal.btn-danger:hover {
+.btn-terminal.btn-danger:hover:not(:disabled) {
   background-color: var(--p-red);
   color: #fff;
   box-shadow: 0 0 10px var(--p-red-glow);
 }
 
+.btn-terminal.btn-amber {
+  border-color: var(--p-amber);
+  color: var(--p-amber);
+  background-color: rgba(60, 45, 10, 0.4);
+}
+
+.btn-terminal.btn-amber:hover:not(:disabled) {
+  background-color: var(--p-amber);
+  color: #000;
+  box-shadow: 0 0 10px var(--p-amber-glow);
+}
+
 /* ==========================================================================
-   弹窗与底座装饰
+   下班后生活系统：狭窄胶囊公寓 (Apartment Life & Text Adventure)
    ========================================================================== */
+.apartment-view {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.apt-banner {
+  background: rgba(18, 30, 20, 0.6);
+  border: 1px solid var(--p-green-dim);
+  padding: 10px 14px;
+  border-radius: 4px;
+}
+
+.apt-title {
+  font-size: 1rem;
+  font-weight: 800;
+  color: #fff;
+  margin-bottom: 4px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.apt-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+@media (max-width: 860px) {
+  .apt-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.apt-card {
+  border: 1px solid var(--p-green-dim);
+  background: rgba(6, 14, 8, 0.8);
+  border-radius: 4px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.apt-card-header {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--p-amber);
+  border-bottom: 1px dashed var(--p-amber-dark);
+  padding-bottom: 4px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.ledger-table {
+  width: 100%;
+  font-size: 0.8rem;
+  border-collapse: collapse;
+  margin-top: 4px;
+}
+
+.ledger-table td {
+  padding: 4px 0;
+  border-bottom: 1px solid rgba(51, 255, 102, 0.1);
+}
+
+.ledger-table td:last-child {
+  text-align: right;
+  font-weight: 700;
+}
+
+.tape-deck-box {
+  background: #040905;
+  border: 1px solid #14351a;
+  padding: 8px;
+  border-radius: 3px;
+  font-size: 0.78rem;
+  min-height: 65px;
+  line-height: 1.5;
+}
+
+.diary-box {
+  background: rgba(12, 22, 14, 0.6);
+  border-left: 3px solid var(--p-cyan);
+  padding: 8px 10px;
+  font-size: 0.8rem;
+  line-height: 1.6;
+  max-height: 120px;
+  overflow-y: auto;
+  color: #c9ecd2;
+}
+
+/* 弹窗与通用底座 */
 .modal-backdrop {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.8);
+  background: rgba(0, 0, 0, 0.82);
   z-index: 50;
   display: none;
   justify-content: center;
@@ -525,8 +655,8 @@ body.crt-enabled .screen-frame {
 }
 
 .modal-box {
-  width: 80%;
-  max-width: 600px;
+  width: 82%;
+  max-width: 640px;
   background-color: #08140a;
   border: 2px solid var(--p-green);
   box-shadow: 0 0 25px var(--p-green-glow);
@@ -560,7 +690,7 @@ body.crt-enabled .screen-frame {
 }
 
 .modal-body p {
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 }
 
 .modal-body code {
@@ -569,12 +699,11 @@ body.crt-enabled .screen-frame {
   padding: 1px 4px;
 }
 
-/* 底部散热孔 */
 .chassis-footer {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding-top: 10px;
+  padding-top: 8px;
   border-top: 2px solid #333835;
   font-size: 0.7rem;
   color: #637068;
