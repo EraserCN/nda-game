@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>NDA: 神经折旧管理局 // Neural Deprecation Agency</title>
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body class="crt-enabled">
+  <!-- 外部物理机箱包边与控制面板 -->
+  <div class="chassis">
+    <!-- 顶部铭牌与状态指示灯 -->
+    <header class="chassis-header">
+      <div class="brand-badge">
+        <span class="logo-icon">▲</span>
+        <span class="brand-title">NEURAL DEPRECATION AGENCY</span>
+        <span class="model-tag">TERMINAL MODEL-88 // AUTH: <strong class="author-tag">@EraserCN</strong></span>
+      </div>
+      
+      <div class="hardware-controls">
+        <!-- 声音开关 -->
+        <button id="btn-audio" class="tactile-btn" title="切换蜂鸣器与磁带杂音 [快捷键: M]">
+          <span class="led-light" id="led-audio"></span>
+          <span class="btn-label">AUDIO: <span id="label-audio-state">OFF</span></span>
+        </button>
+
+        <!-- CRT 效果物理开关 -->
+        <button id="btn-crt" class="tactile-btn active" title="开启/关闭 CRT 滤镜与扫描线 [快捷键: C]">
+          <span class="led-light active" id="led-crt"></span>
+          <span class="btn-label">CRT FX: <span id="label-crt-state">ON</span></span>
+        </button>
+
+        <!-- 帮助/操作指南 -->
+        <button id="btn-help" class="tactile-btn" title="查看操作指南与系统信息">
+          <span class="btn-label">MANUAL</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- CRT 屏幕内胆 -->
+    <div class="screen-frame">
+      <!-- CRT 特效层（扫描线、晕影、弧形畸变） -->
+      <div class="crt-overlay" id="crt-overlay">
+        <div class="scanlines"></div>
+        <div class="vignette"></div>
+        <div class="flicker-layer"></div>
+      </div>
+
+      <!-- 终端显示内容区域 -->
+      <main class="terminal-display" id="terminal-display">
+        <!-- 顶部系统状态栏 -->
+        <div class="sys-bar">
+          <div class="sys-left">
+            <span class="sys-field">UNIT: <strong>INSPECTOR-404</strong></span>
+            <span class="sys-field">DEPT: <strong>MEMORY_REDUCTION</strong></span>
+          </div>
+          <div class="sys-right">
+            <span class="sys-field" id="clock-display">1988-11-14 23:42:01</span>
+            <span class="sys-field">SESSION: <strong id="quota-display">0/3 PROCESSED</strong></span>
+          </div>
+        </div>
+
+        <!-- 游戏核心内容区 (动态加载视图) -->
+        <div class="workspace-viewport" id="workspace">
+          <!-- 动态加载各关卡工单与终端交互 -->
+        </div>
+
+        <!-- 底部快速命令与状态输出栏 -->
+        <footer class="cli-bar">
+          <div class="prompt-symbol">&gt;&gt;</div>
+          <input type="text" id="cli-input" spellcheck="false" autocomplete="off" placeholder="键入指令 (输入 HELP 查看指令列表，按 ENTER 执行)..." />
+          <div class="status-indicator" id="sys-status">SYS_READY</div>
+        </footer>
+      </main>
+    </div>
+
+    <!-- 底部机箱物理通风孔与版权标牌 -->
+    <footer class="chassis-footer">
+      <div class="air-vents">
+        <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+      </div>
+      <div class="footer-meta">
+        <span>CONFIDENTIAL HARDWARE // LICENSED TO UNITED NEURAL TRUST</span>
+        <span>DESIGNED &amp; DEVELOPED BY <strong>@EraserCN</strong></span>
+      </div>
+    </footer>
+  </div>
+
+  <!-- 操作手册弹窗 -->
+  <div class="modal-backdrop" id="modal-help">
+    <div class="modal-box">
+      <div class="modal-header">
+        <span>== OPERATION MANUAL // 操作规程 88-B ==</span>
+        <button class="modal-close" id="btn-modal-close">[X]</button>
+      </div>
+      <div class="modal-body">
+        <p><strong>【岗位职责】</strong><br>
+        您是神经折旧管理局第 4 级兼职审查员。您的使命是维护社会情绪稳态，通过技术手段为尊贵客户剥离、消解并格式化危险创伤记忆。</p>
+        <p><strong>【核心操作】</strong><br>
+        1. <strong>波形切除（Waveform Scalpel）</strong>：拖动频段滑块截断不合规的情绪震荡峰值，寻找隐藏谐波。<br>
+        2. <strong>矛盾复核（Contradiction Audit）</strong>：比对客户自述与物理日志，点击标出谎言与破绽。<br>
+        3. <strong>意识质询（Persona Query）</strong>：在命令行对提取的意识切片输入关键词（如 KEYWORD: xxx）获取密钥。<br>
+        4. <strong>命令行快捷键</strong>：<br>
+           - <code>HELP</code>：查看所有指令<br>
+           - <code>CLEAR</code>：清空工作台记录<br>
+           - <code>STATUS</code>：查看当前审查进度<br>
+           - <code>CRT</code>：切换 CRT 滤镜与扫描线<br>
+           - <code>AUDIO</code>：切换声音开关<br>
+           - <code>REBOOT</code>：重新加载终端系统
+        </p>
+        <p><strong>【系统与版权说明】</strong><br>
+        本系统采用纯原生静态技术架构构建，无任何境外不稳定外链依赖，可无缝部署于 GitHub Pages。<br>
+        <strong>作者署名：@EraserCN</strong>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <script src="./game.js"></script>
+</body>
+</html>
