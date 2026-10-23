@@ -51,7 +51,7 @@
         <!-- 顶部系统状态 HUD 栏 -->
         <div class="sys-bar">
           <div class="sys-left">
-            <span class="sys-field"><strong id="hud-day">DAY 1 / 4</strong></span>
+            <span class="sys-field"><strong id="hud-day">DAY 1 / 20</strong></span>
             <span class="sys-field hud-stat" id="hud-phase">ON DUTY</span>
             <span class="sys-field">BALANCE: <strong id="hud-credits" style="color:var(--p-amber);">220 CR</strong></span>
           </div>
@@ -76,6 +76,9 @@
           <button class="tab-btn" id="tab-btn-apt" data-tab="apt">
             <span class="tab-indicator">●</span> [4] 胶囊公寓 (APARTMENT)
           </button>
+          <button class="tab-btn" id="tab-btn-side" data-tab="side">
+            <span class="tab-indicator">●</span> [5] 支线追踪 (SIDEQUESTS)
+          </button>
         </nav>
 
         <!-- 游戏核心内容区 (根据选项卡与状态动态渲染) -->
@@ -98,7 +101,7 @@
         <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
       </div>
       <div class="footer-meta">
-        <span>UNITED NEURAL TRUST // TERMINAL MODEL-88</span>
+        <span>UNITED NEURAL TRUST // TERMINAL MODEL-88 (20-DAY EXPANDED)</span>
         <span>DESIGNED &amp; DEVELOPED BY <strong>@EraserCN</strong></span>
       </div>
     </footer>
@@ -108,24 +111,25 @@
   <div class="modal-backdrop" id="modal-help">
     <div class="modal-box">
       <div class="modal-header">
-        <span>== OPERATION MANUAL // 审查员全能操作指南 ==</span>
+        <span>== OPERATION MANUAL // 审查员 20 日全景指南 ==</span>
         <button class="modal-close" id="btn-modal-close">[X]</button>
       </div>
       <div class="modal-body">
-        <p><strong>【核心使命与多维系统】</strong><br>
-        本作包含近五万字深厚世界观文本、深度多线剧情与百科检索系统。您可以通过上方功能卡随时切换子系统：<br>
-        1. <strong>[工单审查]</strong>：处理当班记忆剥离任务，利用波形手术刀平抑尖峰、核对矛盾、质询意识切片；<br>
-        2. <strong>[内部论坛 (BBS)]</strong>：查看审查员匿名发帖、黑市交易与官方通报，挖掘隐藏在同事言论里的恐怖线索；<br>
-        3. <strong>[绝密检索 (ARCHIVE DB)]</strong>：输入关键字（如 <code>MINERVA</code>、<code>LETHAVITA</code>、<code>DORM_B_17</code> 等）检索深层保密档案；<br>
-        4. <strong>[胶囊公寓]</strong>：调谐短波电台（88.5 / 104.2 / 44.0 MHz）、播放多盘录音磁带、结算每日药物账单、做出不同哲学的日记抉择。
+        <p><strong>【20日史诗流程与四大支线】</strong><br>
+        本作现已升级至完整的 20 日深度故事线，包含主线审判与四大隐藏支线：<br>
+        1. <strong>[工单审查]</strong>：跨越 20 天的数十个深度道德工单（程序员霸凌、童星对赌、老兵黑匣子、毒气泄露、法官受贿、反抗军审讯等）；<br>
+        2. <strong>[内部论坛]</strong>：查看同事匿名发帖、黑市求购、1985 年大静默历史与隔壁 46 号房失踪案；<br>
+        3. <strong>[绝密检索]</strong>：输入关键字（<code>MINERVA</code>、<code>LETHAVITA</code>、<code>DORM_B_17</code>、<code>FLAT_46</code>、<code>FULL_EXPOSURE</code> 等）跃迁调查；<br>
+        4. <strong>[胶囊公寓]</strong>：调谐短波收音机（88.5 / 104.2 / 44.0 MHz）、播放三盘录音磁带、记录睡前日记、结算每日医药生活账单；<br>
+        5. <strong>[支线追踪]</strong>：随时查看四大支线（周记者底片案、反抗军渗透案、前任401-403遗物案、46号邻居囚徒案）的推进进度。
         </p>
         <p><strong>【快捷键指令】</strong><br>
-        - <code>C</code> 键：随时开关 CRT 滤镜与扫描线<br>
-        - <code>M</code> 键：随时开启/静音声音合成器<br>
-        - <code>1</code> / <code>2</code> / <code>3</code> / <code>4</code> 键：快速切换四个子系统页面<br>
-        - <code>QUERY [关键词]</code>：在意识切片质询环节发送探针关键词<br>
-        - <code>STATUS</code>：查看当前收支与身体理智指数<br>
-        - <code>CLEAR</code> / <code>REBOOT</code>：刷新工作台 / 重置会话
+        - <code>C</code> 键：开关 CRT 滤镜与扫描线<br>
+        - <code>M</code> 键：开启/静音声音合成器<br>
+        - <code>1</code> / <code>2</code> / <code>3</code> / <code>4</code> / <code>5</code> 键：快速切换五大子系统页面<br>
+        - <code>QUERY [关键词]</code>：在切片质询环节发送探针（如 <code>QUERY 记者</code> / <code>QUERY 刹车</code>）<br>
+        - <code>STATUS</code>：查看当前日历进度、资产、理智与共情偏离<br>
+        - <code>CLEAR</code> / <code>REBOOT</code>：刷新工作台 / 重启系统
         </p>
         <p><strong>【技术说明】</strong><br>
         纯原生离线静态技术栈，零外部境外外链依赖，原生支持 GitHub Pages。<br>
@@ -135,7 +139,6 @@
     </div>
   </div>
 
-  <!-- 先加载深度叙事数据，再加载游戏引擎 -->
   <script src="./data.js"></script>
   <script src="./game.js"></script>
 </body>

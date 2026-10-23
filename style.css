@@ -1,6 +1,6 @@
 /* ==========================================================================
    NDA: Neural Deprecation Agency // 神经折旧管理局
-   50,000-Word Comprehensive Narrative & Multi-Subsystem Stylesheet
+   20-Day Extended Epic Narrative & Multi-Subsystem Stylesheet
    Designed by @EraserCN
    ========================================================================== */
 
@@ -272,6 +272,7 @@ body.crt-enabled .screen-frame {
   gap: 6px;
   padding: 6px 0;
   border-bottom: 1px solid #14351b;
+  flex-wrap: wrap;
 }
 
 .tab-btn {
@@ -279,9 +280,9 @@ body.crt-enabled .screen-frame {
   border: 1px solid #1c4b26;
   color: #7baf89;
   font-family: var(--font-mono);
-  font-size: 0.75rem;
+  font-size: 0.73rem;
   font-weight: 700;
-  padding: 4px 10px;
+  padding: 4px 8px;
   cursor: pointer;
   border-radius: 3px;
   transition: all 0.15s ease;
@@ -570,6 +571,97 @@ body.crt-enabled .screen-frame {
 .archive-link:hover {
   color: #fff;
   background: rgba(51, 230, 255, 0.2);
+}
+
+/* ==========================================================================
+   支线追踪面板 (Sidequests View) 样式
+   ========================================================================== */
+.sq-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  height: 100%;
+  overflow-y: auto;
+}
+
+@media (max-width: 900px) {
+  .sq-container {
+    grid-template-columns: 1fr;
+  }
+}
+
+.sq-card {
+  background: rgba(7, 18, 10, 0.85);
+  border: 1px solid #1a4823;
+  border-radius: 5px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sq-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #1a4823;
+  padding-bottom: 6px;
+}
+
+.sq-title {
+  font-size: 0.88rem;
+  font-weight: 800;
+  color: var(--p-amber);
+}
+
+.sq-badge {
+  font-size: 0.68rem;
+  padding: 2px 6px;
+  border-radius: 2px;
+  background: rgba(51, 255, 102, 0.15);
+  color: var(--p-green);
+  border: 1px solid var(--p-green-dim);
+}
+
+.sq-desc {
+  font-size: 0.78rem;
+  line-height: 1.5;
+  color: #a3d4af;
+}
+
+.sq-stages-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.sq-stage-item {
+  background: rgba(4, 11, 6, 0.6);
+  border-left: 2px solid #23582c;
+  padding: 5px 8px;
+  font-size: 0.75rem;
+  line-height: 1.4;
+  color: #8bbd97;
+}
+
+.sq-stage-item.completed {
+  border-left-color: var(--p-green);
+  color: #fff;
+  background: rgba(11, 40, 18, 0.5);
+}
+
+.sq-stage-item.active {
+  border-left-color: var(--p-amber);
+  color: var(--p-amber);
+  background: rgba(30, 22, 5, 0.5);
+}
+
+.sq-hint {
+  font-size: 0.72rem;
+  color: #ffb833;
+  font-style: italic;
+  margin-top: 2px;
 }
 
 /* ==========================================================================
