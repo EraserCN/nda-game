@@ -1,6 +1,6 @@
 /* ==========================================================================
    NDA: Neural Deprecation Agency // 神经折旧管理局
-   Expanded Narrative & Simulation Stylesheet (30-Min Playthrough Edition)
+   50,000-Word Comprehensive Narrative & Multi-Subsystem Stylesheet
    Designed by @EraserCN
    ========================================================================== */
 
@@ -47,10 +47,10 @@ html, body {
    外壳与物理框体 (Chassis & Bezel)
    ========================================================================== */
 .chassis {
-  width: 96vw;
-  max-width: 1240px;
-  height: 95vh;
-  max-height: 890px;
+  width: 97vw;
+  max-width: 1280px;
+  height: 96vh;
+  max-height: 920px;
   background: linear-gradient(145deg, #2b302d 0%, #1a1c1b 100%);
   border: 4px solid var(--bezel-border);
   border-radius: 16px;
@@ -60,7 +60,7 @@ html, body {
     inset 0 -4px 8px var(--bezel-shadow);
   display: flex;
   flex-direction: column;
-  padding: 12px 18px;
+  padding: 10px 16px;
   position: relative;
 }
 
@@ -68,7 +68,7 @@ html, body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding-bottom: 8px;
+  padding-bottom: 6px;
   border-bottom: 2px solid #333835;
 }
 
@@ -115,7 +115,7 @@ html, body {
   font-family: var(--font-mono);
   font-size: 0.75rem;
   font-weight: 700;
-  padding: 6px 12px;
+  padding: 5px 10px;
   border-radius: 4px;
   cursor: pointer;
   display: flex;
@@ -156,7 +156,7 @@ html, body {
   flex: 1;
   background-color: #040905;
   border-radius: 12px;
-  margin: 8px 0;
+  margin: 6px 0;
   position: relative;
   overflow: hidden;
   border: 3px solid #121614;
@@ -181,7 +181,6 @@ body.crt-enabled .crt-overlay {
   display: block;
 }
 
-/* 扫描线效果 */
 .scanlines {
   position: absolute;
   width: 100%;
@@ -193,7 +192,6 @@ body.crt-enabled .crt-overlay {
   background-size: 100% 4px;
 }
 
-/* 暗角晕影 */
 .vignette {
   position: absolute;
   width: 100%;
@@ -234,18 +232,18 @@ body.crt-enabled .screen-frame {
   background-color: var(--bg-crt-glass);
   display: flex;
   flex-direction: column;
-  padding: 12px 16px;
+  padding: 10px 14px;
   position: relative;
   z-index: 2;
   overflow: hidden;
 }
 
-/* 状态 HUD 栏 */
+/* 顶部状态 HUD 栏 */
 .sys-bar {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding-bottom: 6px;
+  padding-bottom: 5px;
   border-bottom: 1px dashed var(--p-green-dim);
   font-size: 0.78rem;
   letter-spacing: 1px;
@@ -268,20 +266,55 @@ body.crt-enabled .screen-frame {
   border: 1px solid var(--p-green-dim);
 }
 
-.hud-stat.danger {
-  border-color: var(--p-red);
-  color: var(--p-red);
+/* 子系统导航选项卡 */
+.sys-tab-nav {
+  display: flex;
+  gap: 6px;
+  padding: 6px 0;
+  border-bottom: 1px solid #14351b;
 }
 
-.hud-stat.warning {
-  border-color: var(--p-amber);
-  color: var(--p-amber);
+.tab-btn {
+  background: #08160c;
+  border: 1px solid #1c4b26;
+  color: #7baf89;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  cursor: pointer;
+  border-radius: 3px;
+  transition: all 0.15s ease;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.tab-btn:hover {
+  background: #102d18;
+  color: #fff;
+}
+
+.tab-btn.active {
+  background: var(--p-green-dark);
+  border-color: var(--p-green);
+  color: #fff;
+  box-shadow: 0 0 8px var(--p-green-glow);
+}
+
+.tab-indicator {
+  font-size: 0.6rem;
+  color: var(--p-green-dim);
+}
+
+.tab-btn.active .tab-indicator {
+  color: var(--p-green);
 }
 
 .workspace-viewport {
   flex: 1;
   overflow-y: auto;
-  margin: 8px 0;
+  margin: 6px 0;
   display: flex;
   flex-direction: column;
   position: relative;
@@ -336,17 +369,382 @@ body.crt-enabled .screen-frame {
 }
 
 /* ==========================================================================
-   关卡组件与双屏工作台 (Workstation Components)
+   内部论坛 (BBS View) 样式
+   ========================================================================== */
+.bbs-container {
+  display: flex;
+  gap: 12px;
+  height: 100%;
+}
+
+.bbs-list-pane {
+  width: 42%;
+  border-right: 1px solid #14351b;
+  overflow-y: auto;
+  padding-right: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.bbs-card {
+  background: rgba(8, 20, 11, 0.7);
+  border: 1px solid #1a4222;
+  border-radius: 4px;
+  padding: 8px 10px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.bbs-card:hover {
+  background: rgba(16, 40, 22, 0.9);
+  border-color: var(--p-green);
+}
+
+.bbs-card.active {
+  background: rgba(11, 61, 24, 0.85);
+  border-color: var(--p-green);
+  box-shadow: 0 0 8px var(--p-green-glow);
+}
+
+.bbs-card-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.72rem;
+  color: #7baf89;
+  margin-bottom: 4px;
+}
+
+.bbs-badge {
+  padding: 1px 4px;
+  border-radius: 2px;
+  font-size: 0.68rem;
+  background: var(--p-green-dark);
+  color: var(--p-green);
+  border: 1px solid var(--p-green-dim);
+}
+
+.bbs-badge.danger {
+  background: rgba(60, 10, 15, 0.6);
+  color: var(--p-red);
+  border-color: var(--p-red);
+}
+
+.bbs-card-title {
+  font-size: 0.82rem;
+  font-weight: bold;
+  color: #fff;
+  line-height: 1.4;
+}
+
+.bbs-detail-pane {
+  flex: 1;
+  overflow-y: auto;
+  padding: 10px 14px;
+  background: rgba(5, 12, 7, 0.6);
+  border: 1px solid #14351b;
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.bbs-post-header {
+  border-bottom: 1px dashed #1a4222;
+  padding-bottom: 8px;
+}
+
+.bbs-post-title {
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--p-green);
+  margin-bottom: 6px;
+}
+
+.bbs-post-meta {
+  font-size: 0.75rem;
+  color: #7baf89;
+}
+
+.bbs-post-body {
+  font-size: 0.82rem;
+  line-height: 1.7;
+  color: #cdecd3;
+  white-space: pre-wrap;
+}
+
+.bbs-comment-item {
+  background: rgba(10, 25, 14, 0.7);
+  border-left: 2px solid var(--p-green-dim);
+  padding: 6px 10px;
+  margin-top: 6px;
+  font-size: 0.78rem;
+  line-height: 1.5;
+}
+
+/* ==========================================================================
+   绝密检索库 (Archive DB) 样式
+   ========================================================================== */
+.archive-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  height: 100%;
+}
+
+.archive-search-bar {
+  display: flex;
+  gap: 8px;
+  background: rgba(6, 16, 9, 0.9);
+  border: 1px solid var(--p-green);
+  padding: 6px 10px;
+  border-radius: 4px;
+  align-items: center;
+}
+
+.archive-search-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  font-family: var(--font-mono);
+  font-size: 0.88rem;
+  color: #fff;
+}
+
+.archive-tags-row {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  font-size: 0.72rem;
+}
+
+.archive-tag-pill {
+  background: rgba(14, 38, 20, 0.8);
+  border: 1px solid #1c5228;
+  color: #8bd49c;
+  padding: 2px 7px;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.archive-tag-pill:hover {
+  background: var(--p-green-dark);
+  color: #fff;
+  border-color: var(--p-green);
+}
+
+.archive-article-box {
+  flex: 1;
+  background: rgba(5, 12, 7, 0.8);
+  border: 1px solid var(--p-green-dim);
+  border-radius: 4px;
+  padding: 14px 18px;
+  overflow-y: auto;
+  line-height: 1.7;
+}
+
+.archive-article-title {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--p-amber);
+  border-bottom: 2px solid var(--p-amber-dark);
+  padding-bottom: 6px;
+  margin-bottom: 10px;
+}
+
+.archive-article-content {
+  font-size: 0.85rem;
+  color: #cdecd3;
+  white-space: pre-wrap;
+}
+
+.archive-link {
+  color: var(--p-cyan);
+  text-decoration: underline;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.archive-link:hover {
+  color: #fff;
+  background: rgba(51, 230, 255, 0.2);
+}
+
+/* ==========================================================================
+   多维公寓系统：收音机、磁带架与日记决策
+   ========================================================================== */
+.apartment-view {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.apt-banner {
+  background: rgba(18, 30, 20, 0.6);
+  border: 1px solid var(--p-green-dim);
+  padding: 8px 12px;
+  border-radius: 4px;
+}
+
+.apt-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+@media (max-width: 900px) {
+  .apt-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.apt-card {
+  border: 1px solid var(--p-green-dim);
+  background: rgba(6, 14, 8, 0.85);
+  border-radius: 4px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.apt-card-header {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--p-amber);
+  border-bottom: 1px dashed var(--p-amber-dark);
+  padding-bottom: 4px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.ledger-table {
+  width: 100%;
+  font-size: 0.78rem;
+  border-collapse: collapse;
+}
+
+.ledger-table td {
+  padding: 3px 0;
+  border-bottom: 1px solid rgba(51, 255, 102, 0.1);
+}
+
+.ledger-table td:last-child {
+  text-align: right;
+  font-weight: 700;
+}
+
+/* 短波收音机调谐器 */
+.radio-box {
+  background: #030804;
+  border: 1px solid #123017;
+  padding: 8px;
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.radio-dial {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.75rem;
+}
+
+.radio-slider {
+  width: 65%;
+  accent-color: var(--p-amber);
+}
+
+.radio-screen {
+  background: #061108;
+  border: 1px solid #1b4522;
+  padding: 8px;
+  min-height: 55px;
+  font-size: 0.78rem;
+  line-height: 1.5;
+  color: #bfe8c7;
+}
+
+/* 磁带架与选择器 */
+.tape-selector {
+  display: flex;
+  gap: 6px;
+}
+
+.tape-tab-btn {
+  flex: 1;
+  background: #091a0e;
+  border: 1px solid #1a4222;
+  color: #7baf89;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  padding: 4px;
+  cursor: pointer;
+  border-radius: 2px;
+}
+
+.tape-tab-btn.active {
+  background: var(--p-green-dark);
+  color: #fff;
+  border-color: var(--p-green);
+}
+
+.tape-player-screen {
+  background: #030804;
+  border: 1px solid #123017;
+  padding: 8px;
+  min-height: 60px;
+  font-size: 0.78rem;
+  line-height: 1.6;
+}
+
+/* 睡前哲学日记选择卡 */
+.diary-choice-box {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.diary-choice-card {
+  background: rgba(10, 24, 14, 0.7);
+  border: 1px solid #184221;
+  padding: 8px 10px;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 0.78rem;
+  line-height: 1.5;
+  transition: all 0.15s ease;
+}
+
+.diary-choice-card:hover {
+  background: rgba(20, 50, 28, 0.9);
+  border-color: var(--p-cyan);
+  color: #fff;
+}
+
+.diary-choice-card.selected {
+  background: rgba(11, 61, 24, 0.9);
+  border-color: var(--p-green);
+  box-shadow: 0 0 6px var(--p-green-glow);
+}
+
+/* ==========================================================================
+   工作台通用组件 (Dual-Pane, Scope, Buttons)
    ========================================================================== */
 .view-container {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  animation: fadeIn 0.3s ease;
+  animation: fadeIn 0.25s ease;
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(4px); }
+  from { opacity: 0; transform: translateY(3px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
@@ -358,7 +756,7 @@ body.crt-enabled .screen-frame {
 .intro-title {
   font-size: 1.1rem;
   font-weight: bold;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
   color: var(--p-green);
   border-left: 4px solid var(--p-green);
   padding-left: 8px;
@@ -541,102 +939,19 @@ body.crt-enabled .screen-frame {
   box-shadow: 0 0 10px var(--p-amber-glow);
 }
 
-/* ==========================================================================
-   下班后生活系统：狭窄胶囊公寓 (Apartment Life & Text Adventure)
-   ========================================================================== */
-.apartment-view {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+.btn-terminal.btn-cyan {
+  border-color: var(--p-cyan);
+  color: var(--p-cyan);
+  background-color: rgba(10, 45, 60, 0.4);
 }
 
-.apt-banner {
-  background: rgba(18, 30, 20, 0.6);
-  border: 1px solid var(--p-green-dim);
-  padding: 10px 14px;
-  border-radius: 4px;
+.btn-terminal.btn-cyan:hover:not(:disabled) {
+  background-color: var(--p-cyan);
+  color: #000;
+  box-shadow: 0 0 10px var(--p-cyan-glow);
 }
 
-.apt-title {
-  font-size: 1rem;
-  font-weight: 800;
-  color: #fff;
-  margin-bottom: 4px;
-  display: flex;
-  justify-content: space-between;
-}
-
-.apt-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-}
-
-@media (max-width: 860px) {
-  .apt-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-.apt-card {
-  border: 1px solid var(--p-green-dim);
-  background: rgba(6, 14, 8, 0.8);
-  border-radius: 4px;
-  padding: 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.apt-card-header {
-  font-size: 0.85rem;
-  font-weight: 700;
-  color: var(--p-amber);
-  border-bottom: 1px dashed var(--p-amber-dark);
-  padding-bottom: 4px;
-  display: flex;
-  justify-content: space-between;
-}
-
-.ledger-table {
-  width: 100%;
-  font-size: 0.8rem;
-  border-collapse: collapse;
-  margin-top: 4px;
-}
-
-.ledger-table td {
-  padding: 4px 0;
-  border-bottom: 1px solid rgba(51, 255, 102, 0.1);
-}
-
-.ledger-table td:last-child {
-  text-align: right;
-  font-weight: 700;
-}
-
-.tape-deck-box {
-  background: #040905;
-  border: 1px solid #14351a;
-  padding: 8px;
-  border-radius: 3px;
-  font-size: 0.78rem;
-  min-height: 65px;
-  line-height: 1.5;
-}
-
-.diary-box {
-  background: rgba(12, 22, 14, 0.6);
-  border-left: 3px solid var(--p-cyan);
-  padding: 8px 10px;
-  font-size: 0.8rem;
-  line-height: 1.6;
-  max-height: 120px;
-  overflow-y: auto;
-  color: #c9ecd2;
-}
-
-/* 弹窗与通用底座 */
+/* 弹窗通用样式 */
 .modal-backdrop {
   position: absolute;
   top: 0;
@@ -703,7 +1018,7 @@ body.crt-enabled .screen-frame {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding-top: 8px;
+  padding-top: 6px;
   border-top: 2px solid #333835;
   font-size: 0.7rem;
   color: #637068;

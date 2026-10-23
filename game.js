@@ -1,18 +1,20 @@
 /**
  * ============================================================================
  * NDA: 神经折旧管理局 (Neural Deprecation Agency)
- * 30-Minute Extended Interactive Narrative & Simulation Edition
+ * 50,000-Word Comprehensive Narrative & Interactive Engine
  * 
  * Lead Designer & System Architect: @EraserCN
- * Fully Self-Contained, Zero External CDN Dependencies, Domestic Network Ready
+ * Fully Self-Contained, Zero External Dependencies, Domestic Network Ready
  * ============================================================================
  */
 
 (function () {
   'use strict';
 
+  const DATA = window.NDA_DATA || {};
+
   // ==========================================================================
-  // 1. Web Audio API 物理合成引擎 (纯代码运算，无需外部音频文件)
+  // 1. Web Audio API 物理合成引擎 (零外部音频依赖)
   // ==========================================================================
   class SoundEngine {
     constructor() {
@@ -149,25 +151,35 @@
   }
 
   // ==========================================================================
-  // 2. 核心状态机与生活数值 (Simulation & State)
+  // 2. 全局状态机 (State Machine)
   // ==========================================================================
   const State = {
-    // 进度与循环
+    // 进度与选项卡
     day: 1, // 1 ~ 4
     phase: 'PROLOGUE', // PROLOGUE, ON_DUTY, OFF_DUTY, CLIMAX, ENDING
+    activeTab: 'work', // work, bbs, archive, apt
     activeCaseIndex: 0,
 
-    // 玩家资产与生活数值
+    // 生活数值
     credits: 220,
-    sisterCondition: '稳定', // 稳定, 恶化, 危急, 虚构
+    sisterCondition: '稳定',
     sisterMedsPaid: false,
     rentPaid: false,
     pillTaken: false,
-    empathyScore: 0, // 共情偏差
-    sanity: 100, // 理智值
+    empathyScore: 0,
+    sanity: 100,
     rebelNetworkUnlocked: false,
 
-    // 系统硬件与动画
+    // 公寓子媒体状态
+    activeTapeKey: 'TAPE_A',
+    radioFreq: 88.5,
+    selectedDiaryChoice: null,
+
+    // 论坛与检索状态
+    activeBbsId: 'thread-01',
+    activeArchiveKey: 'PROJECT_LETHE',
+
+    // 硬件与系统
     crtOn: true,
     audioOn: false,
     activeWaveformAnim: null,
@@ -199,11 +211,14 @@
     hudPhase: document.getElementById('hud-phase'),
     hudCredits: document.getElementById('hud-credits'),
     hudSister: document.getElementById('hud-sister'),
-    hudEmpathy: document.getElementById('hud-empathy')
+    hudEmpathy: document.getElementById('hud-empathy'),
+
+    // Tab 导航按钮
+    tabBtns: document.querySelectorAll('.tab-btn')
   };
 
   // ==========================================================================
-  // 3. HUD 数值同步与通知
+  // 3. UI 交互、Tab 导航与 HUD 同步
   // ==========================================================================
   function updateHUD() {
     el.hudDay.textContent = `DAY ${State.day} / 4`;
@@ -255,19 +270,48 @@
     }
   }
 
+  // Tab 切换逻辑
+  function switchTab(tabKey) {
+    State.activeTab = tabKey;
+    el.tabBtns.forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.tab === tabKey);
+    });
+    sound.playBeep(480, 0.05);
+
+    if (tabKey === 'work') {
+      if (State.phase === 'PROLOGUE') renderPrologue();
+      else if (State.phase === 'ON_DUTY') loadDayCase(State.day, State.activeCaseIndex || 1);
+      else if (State.phase === 'OFF_DUTY') renderApartmentScene();
+      else if (State.phase === 'CLIMAX') renderDay4Climax();
+    } else if (tabKey === 'bbs') {
+      renderBbsView();
+    } else if (tabKey === 'archive') {
+      renderArchiveView(State.activeArchiveKey);
+    } else if (tabKey === 'apt') {
+      renderApartmentScene();
+    }
+  }
+
+  el.tabBtns.forEach(btn => {
+    btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+  });
+
   el.btnCrt.addEventListener('click', () => setCrtState(!State.crtOn));
   el.btnAudio.addEventListener('click', () => toggleAudio());
   el.btnHelp.addEventListener('click', () => el.modalHelp.classList.add('open'));
   el.btnModalClose.addEventListener('click', () => el.modalHelp.classList.remove('open'));
 
+  // 键盘快捷键监听
   window.addEventListener('keydown', (e) => {
     sound.playKeyClick();
-    if (e.key === 'c' || e.key === 'C') {
-      if (document.activeElement !== el.cliInput) setCrtState(!State.crtOn);
-    } else if (e.key === 'm' || e.key === 'M') {
-      if (document.activeElement !== el.cliInput) toggleAudio();
-    } else if (e.key === 'Escape') {
-      el.modalHelp.classList.remove('open');
+    if (document.activeElement !== el.cliInput) {
+      if (e.key === 'c' || e.key === 'C') setCrtState(!State.crtOn);
+      else if (e.key === 'm' || e.key === 'M') toggleAudio();
+      else if (e.key === '1') switchTab('work');
+      else if (e.key === '2') switchTab('bbs');
+      else if (e.key === '3') switchTab('archive');
+      else if (e.key === '4') switchTab('apt');
+      else if (e.key === 'Escape') el.modalHelp.classList.remove('open');
     }
   });
 
@@ -279,7 +323,7 @@
   setInterval(updateClock, 1000);
   updateClock();
 
-  function typeWriter(targetEl, text, speed = 12, callback = null) {
+  function typeWriter(targetEl, text, speed = 10, callback = null) {
     let index = 0;
     const timer = setInterval(() => {
       if (index < text.length) {
@@ -294,42 +338,407 @@
   }
 
   // ==========================================================================
-  // 4. 流程阶段控制：开局背景 -> 工作台 -> 下班生活 -> 终局
+  // 4. 子系统 2: 企业内部匿名网络 (INTRANET BBS VIEW)
   // ==========================================================================
+  function renderBbsView() {
+    const threads = DATA.BBS_THREADS || [];
+    const currentThread = threads.find(t => t.id === State.activeBbsId) || threads[0];
 
-  // --- [PROLOGUE: 签约与背景导入] ---
+    const threadListHtml = threads.map(t => `
+      <div class="bbs-card ${t.id === currentThread.id ? 'active' : ''}" data-id="${t.id}">
+        <div class="bbs-card-header">
+          <span class="bbs-badge ${t.tag.includes('官方') ? 'danger' : ''}">${t.tag}</span>
+          <span>${t.date}</span>
+        </div>
+        <div class="bbs-card-title">${t.title}</div>
+        <div style="font-size:0.7rem; color:#6ea57c; margin-top:4px;">作者: ${t.author} | 回复: ${t.replies}</div>
+      </div>
+    `).join('');
+
+    const commentsHtml = (currentThread.comments || []).map(c => `
+      <div class="bbs-comment-item">
+        <strong style="color:var(--p-amber);">${c.user}:</strong> ${c.text}
+      </div>
+    `).join('');
+
+    el.workspace.innerHTML = `
+      <div class="bbs-container">
+        <!-- 左侧帖子列表 -->
+        <div class="bbs-list-pane">
+          <div style="font-size:0.8rem; font-weight:bold; color:var(--p-green); padding-bottom:4px; border-bottom:1px solid #14351b;">
+            &gt; 内部员工交流区 // 匿名路由 [只读节点]
+          </div>
+          ${threadListHtml}
+        </div>
+
+        <!-- 右侧帖子详情 -->
+        <div class="bbs-detail-pane">
+          <div class="bbs-post-header">
+            <div class="bbs-post-title">${currentThread.title}</div>
+            <div class="bbs-post-meta">发帖人: ${currentThread.author} | 发布时间: ${currentThread.date}</div>
+          </div>
+          <div class="bbs-post-body">${currentThread.content.trim()}</div>
+          
+          <div style="margin-top:12px; border-top:1px dashed #14351b; padding-top:8px;">
+            <div style="font-size:0.75rem; font-weight:bold; color:var(--p-amber); margin-bottom:4px;">
+              [员工匿名留言区 (COMMENTS)]
+            </div>
+            ${commentsHtml}
+          </div>
+        </div>
+      </div>
+    `;
+
+    document.querySelectorAll('.bbs-card').forEach(card => {
+      card.addEventListener('click', () => {
+        State.activeBbsId = card.dataset.id;
+        sound.playBeep(600, 0.05);
+        renderBbsView();
+      });
+    });
+  }
+
+  // ==========================================================================
+  // 5. 子系统 3: 绝密检索库 (ARCHIVE DATABASE SEARCH VIEW)
+  // ==========================================================================
+  function renderArchiveView(searchKey = 'PROJECT_LETHE') {
+    const archives = DATA.ARCHIVE_ENTRIES || {};
+    const key = (searchKey || '').toUpperCase().trim();
+    const entry = archives[key] || archives['PROJECT_LETHE'];
+    State.activeArchiveKey = key;
+
+    // 格式化文本中的词条链接 [KEYWORD]
+    let formattedContent = entry.content.trim();
+    Object.keys(archives).forEach(k => {
+      const reg = new RegExp(`\\[${k}\\]`, 'g');
+      formattedContent = formattedContent.replace(reg, `<span class="archive-link" data-search="${k}">[${k}]</span>`);
+    });
+
+    // 常用热门标签
+    const tagsHtml = Object.keys(archives).map(k => `
+      <span class="archive-tag-pill ${k === key ? 'active' : ''}" data-search="${k}"># ${k}</span>
+    `).join('');
+
+    el.workspace.innerHTML = `
+      <div class="archive-container">
+        <!-- 顶部搜索条 -->
+        <div class="archive-search-bar">
+          <span style="font-weight:bold; color:var(--p-amber);">&gt; SEARCH_QUERY:</span>
+          <input type="text" class="archive-search-input" id="archive-search-input" placeholder="输入词条代码 (如: MINERVA, LETHAVITA, DORM_B_17, UNIT_404)..." value="${key}">
+          <button class="btn-terminal" id="btn-do-search" style="padding:4px 10px; font-size:0.75rem;">检索 (EXEC)</button>
+        </div>
+
+        <!-- 标签索引栏 -->
+        <div class="archive-tags-row">
+          ${tagsHtml}
+        </div>
+
+        <!-- 档案阅读正文 -->
+        <div class="archive-article-box">
+          <div class="archive-article-title">${entry.title}</div>
+          <div style="font-size:0.75rem; color:var(--p-red); margin-bottom:8px;">
+            保密权限: [${entry.classification}] // 索引标签: ${(entry.tags || []).join(', ')}
+          </div>
+          <div class="archive-article-content">${formattedContent}</div>
+        </div>
+      </div>
+    `;
+
+    const searchInput = document.getElementById('archive-search-input');
+    const doSearch = () => {
+      const q = searchInput.value.trim().toUpperCase();
+      if (archives[q]) {
+        sound.playSuccess();
+        renderArchiveView(q);
+      } else {
+        sound.playError();
+        showNotice(`ARCHIVE ENTRY NOT FOUND: "${q}"`, true);
+      }
+    };
+
+    document.getElementById('btn-do-search').addEventListener('click', doSearch);
+    searchInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') doSearch();
+    });
+
+    document.querySelectorAll('[data-search]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        sound.playBeep(700, 0.05);
+        renderArchiveView(btn.dataset.search);
+      });
+    });
+  }
+
+  // ==========================================================================
+  // 6. 子系统 4: 胶囊公寓夜间生活 (APARTMENT MULTI-MEDIA LIFE)
+  // ==========================================================================
+  function renderApartmentScene() {
+    if (State.activeWaveformAnim) cancelAnimationFrame(State.activeWaveformAnim);
+    State.phase = 'OFF_DUTY';
+    updateHUD();
+
+    const tapes = DATA.CASSETTE_TAPES || {};
+    const curTape = tapes[State.activeTapeKey] || tapes['TAPE_A'];
+    const curTapeLog = curTape.logs[Math.min(State.day - 1, curTape.logs.length - 1)] || curTape.logs[0];
+
+    const radio = DATA.RADIO_CHANNELS || {};
+    const curRadioFreqKey = String(State.radioFreq);
+    const curRadioInfo = radio[curRadioFreqKey] || {
+      name: "未知频段 // 纯电磁白噪音 (STATIC)",
+      broadcast: `[嘶嘶啦啦的白噪音] 调谐滑块至 88.5 MHz（官方）、104.2 MHz（商业）或 44.0 MHz（短波反抗军）...`
+    };
+
+    // 睡前日记选项
+    const diaryDayKey = `DAY_${Math.min(State.day, 3)}`;
+    const diaryOpts = (DATA.DIARY_OPTIONS || {})[diaryDayKey] || [];
+    const diaryCardsHtml = diaryOpts.map((opt, idx) => `
+      <div class="diary-choice-card ${State.selectedDiaryChoice === idx ? 'selected' : ''}" data-idx="${idx}">
+        ${opt.text}
+      </div>
+    `).join('');
+
+    el.workspace.innerHTML = `
+      <div class="view-container apartment-view">
+        <div class="apt-banner">
+          <div class="apt-title">
+            <span>&gt;&gt; 狭窄胶囊公寓 // DAY ${State.day} 深夜 (OFF DUTY)</span>
+            <span style="font-size:0.8rem; color:var(--p-amber);">可用余额: ${State.credits} CR</span>
+          </div>
+          <div style="font-size:0.78rem; color:#a2cfad;">
+            天花板滴落着冷水，窗外穿梭飞空艇的巨幅霓虹绿光扫过粗糙的铁架床。你的后颈芯片插口微微发热。
+          </div>
+        </div>
+
+        <div class="apt-grid">
+          <!-- 卡片 1: 生存开销与账单结算 -->
+          <div class="apt-card">
+            <div class="apt-card-header">
+              <span>[收支与生命维持 (LEDGER)]</span>
+              <span>必缴账单</span>
+            </div>
+            <table class="ledger-table">
+              <tr>
+                <td>房东每日租金扣除:</td>
+                <td>-120 CR</td>
+              </tr>
+              <tr>
+                <td>妹妹神经拮抗剂 (Meds):</td>
+                <td>-180 CR</td>
+              </tr>
+              <tr>
+                <td>情绪稳定药丸“乐维他” (Pills):</td>
+                <td>-30 CR</td>
+              </tr>
+            </table>
+
+            <div style="display:flex; flex-direction:column; gap:6px; margin-top:6px;">
+              <button class="btn-terminal" id="apt-btn-rent" ${State.rentPaid || State.credits < 120 ? 'disabled' : ''}>
+                ${State.rentPaid ? '已缴纳房租' : '缴纳房租 (120 CR)'}
+              </button>
+              <button class="btn-terminal" id="apt-btn-meds" ${State.sisterMedsPaid || State.credits < 180 ? 'disabled' : ''}>
+                ${State.sisterMedsPaid ? '已给妹妹寄送药液' : '给妹妹寄药 (180 CR)'}
+              </button>
+              <button class="btn-terminal btn-amber" id="apt-btn-pill" ${State.pillTaken || State.credits < 30 ? 'disabled' : ''}>
+                ${State.pillTaken ? '已服用情绪药丸' : '吞服“乐维他”阻断剂 (30 CR)'}
+              </button>
+            </div>
+          </div>
+
+          <!-- 卡片 2: 多盘磁带答录机 -->
+          <div class="apt-card">
+            <div class="apt-card-header">
+              <span>[三联卡式磁带机 (CASSETTE DECK)]</span>
+              <span id="tape-status-led" style="color:var(--p-green);">PLAYING</span>
+            </div>
+            
+            <div class="tape-selector">
+              <button class="tape-tab-btn ${State.activeTapeKey === 'TAPE_A' ? 'active' : ''}" data-tape="TAPE_A">磁带 A: 妹妹留言</button>
+              <button class="tape-tab-btn ${State.activeTapeKey === 'TAPE_B' ? 'active' : ''}" data-tape="TAPE_B">磁带 B: 前任自白</button>
+              <button class="tape-tab-btn ${State.activeTapeKey === 'TAPE_C' ? 'active' : ''}" data-tape="TAPE_C">磁带 C: 叛逆摇滚</button>
+            </div>
+
+            <div class="tape-player-screen" id="tape-content-display">
+              <strong style="color:var(--p-amber);">${curTape.label}:</strong><br>
+              ${curTapeLog}
+            </div>
+          </div>
+
+          <!-- 卡片 3: 短波无线电接收机 -->
+          <div class="apt-card">
+            <div class="apt-card-header">
+              <span>[短波收音机 (SHORTWAVE RECEIVER)]</span>
+              <span id="radio-cur-name">${curRadioInfo.name}</span>
+            </div>
+
+            <div class="radio-box">
+              <div class="radio-dial">
+                <span>调谐频率: <strong id="val-radio-freq" style="color:var(--p-amber);">${State.radioFreq} MHz</strong></span>
+                <input type="range" class="radio-slider" id="radio-slider" min="30" max="110" step="0.5" value="${State.radioFreq}">
+              </div>
+              <div class="radio-screen" id="radio-text-box">
+                ${curRadioInfo.broadcast.trim()}
+              </div>
+            </div>
+          </div>
+
+          <!-- 卡片 4: 睡前哲学日记反思 -->
+          <div class="apt-card">
+            <div class="apt-card-header">
+              <span>[枕边私人日记 (Day ${State.day})]</span>
+              <span>思维抉择</span>
+            </div>
+            <div style="font-size:0.75rem; color:#8bd49c;">选择你今晚写在日记本上的真实思绪：</div>
+            <div class="diary-choice-box">
+              ${diaryCardsHtml}
+            </div>
+            <div id="diary-impact-note" style="font-size:0.72rem; color:var(--p-cyan); min-height:18px;"></div>
+          </div>
+        </div>
+
+        <!-- 睡眠进入下一天 -->
+        <div class="action-dock" style="margin-top:8px;">
+          <button class="btn-terminal" id="apt-btn-sleep" style="padding:8px 24px; font-size:0.88rem;">
+            &gt;&gt; 关灯入眠，迎接 Day ${State.day + 1} 晨班
+          </button>
+        </div>
+      </div>
+    `;
+
+    // 绑定账单按钮
+    document.getElementById('apt-btn-rent').addEventListener('click', () => {
+      State.credits -= 120;
+      State.rentPaid = true;
+      sound.playSuccess();
+      updateHUD();
+      renderApartmentScene();
+    });
+
+    document.getElementById('apt-btn-meds').addEventListener('click', () => {
+      if (State.day === 3) {
+        sound.playError();
+        alert('【系统警报】错误代码 E-404：目标账户 [小柔] 不存在！该户籍档案已于 1985 年正式注销。');
+        State.sisterCondition = '虚构';
+        updateHUD();
+        renderApartmentScene();
+        return;
+      }
+      State.credits -= 180;
+      State.sisterMedsPaid = true;
+      State.sisterCondition = '稳定';
+      sound.playSuccess();
+      updateHUD();
+      renderApartmentScene();
+    });
+
+    document.getElementById('apt-btn-pill').addEventListener('click', () => {
+      State.credits -= 30;
+      State.pillTaken = true;
+      State.empathyScore = Math.max(0, State.empathyScore - 1);
+      sound.playBeep(320, 0.1);
+      updateHUD();
+      renderApartmentScene();
+    });
+
+    // 磁带切换
+    document.querySelectorAll('.tape-tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        State.activeTapeKey = btn.dataset.tape;
+        sound.playBeep(400, 0.06);
+        renderApartmentScene();
+      });
+    });
+
+    // 收音机滑动调频
+    const radioSlider = document.getElementById('radio-slider');
+    const valRadioFreq = document.getElementById('val-radio-freq');
+    const radioTextBox = document.getElementById('radio-text-box');
+    const radioCurName = document.getElementById('radio-cur-name');
+
+    radioSlider.addEventListener('input', () => {
+      const f = parseFloat(radioSlider.value);
+      valRadioFreq.textContent = `${f.toFixed(1)} MHz`;
+      sound.playKeyClick();
+
+      let targetKey = null;
+      if (Math.abs(f - 88.5) < 1.0) targetKey = "88.5";
+      else if (Math.abs(f - 104.2) < 1.0) targetKey = "104.2";
+      else if (Math.abs(f - 44.0) < 1.0) targetKey = "44.0";
+
+      if (targetKey) {
+        State.radioFreq = parseFloat(targetKey);
+        const info = radio[targetKey];
+        radioCurName.textContent = info.name;
+        radioTextBox.innerHTML = info.broadcast.trim();
+        sound.playBeep(targetKey === "44.0" ? 330 : 660, 0.1);
+      } else {
+        radioCurName.textContent = "电磁白噪音 (STATIC)";
+        radioTextBox.textContent = "[嘶嘶啦啦……电磁杂音在狭窄的房间里回荡……]";
+      }
+    });
+
+    // 日记选择
+    document.querySelectorAll('.diary-choice-card').forEach(card => {
+      card.addEventListener('click', () => {
+        const idx = parseInt(card.dataset.idx);
+        State.selectedDiaryChoice = idx;
+        const opt = diaryOpts[idx];
+        if (opt.effect) {
+          State.sanity = Math.max(0, Math.min(100, State.sanity + (opt.effect.sanity || 0)));
+          State.empathyScore += (opt.effect.empathy || 0);
+        }
+        sound.playBeep(520, 0.08);
+        document.getElementById('diary-impact-note').textContent = `【思维余波】${opt.effect.note}`;
+        document.querySelectorAll('.diary-choice-card').forEach(c => c.classList.remove('selected'));
+        card.classList.add('selected');
+        updateHUD();
+      });
+    });
+
+    // 睡觉进入下一天
+    document.getElementById('apt-btn-sleep').addEventListener('click', () => {
+      if (!State.sisterMedsPaid && State.day < 3) {
+        State.sisterCondition = '恶化';
+      }
+      sound.playBeep(220, 0.25);
+      startDay(State.day + 1);
+    });
+  }
+
+  // ==========================================================================
+  // 7. 主线流程：签约 -> 每日值班工单 -> 终局
+  // ==========================================================================
   function renderPrologue() {
     State.phase = 'PROLOGUE';
     updateHUD();
 
     el.workspace.innerHTML = `
       <div class="view-container intro-terminal">
-        <div class="intro-title">&gt;&gt; 新亚特兰蒂斯城 // 第 47 号高密度胶囊公租房 (1988 年秋)</div>
+        <div class="intro-title">&gt;&gt; 新亚特兰蒂斯城 // 第 47 号高密度公租房 (1988 年秋)</div>
         <div class="intro-meta">
-          环境气温: 11℃ | 相对湿度: 88% | 空气神经镇定气溶胶浓度: 0.04 mg/m³<br>
+          室外温度: 11℃ | 相对湿度: 88% | 空气神经镇定气溶胶浓度: 0.04 mg/m³<br>
           系统首席架构署名: <strong style="color:var(--p-amber);">@EraserCN</strong>
         </div>
 
-        <div style="font-size:0.85rem; line-height:1.7; color:#cbe7d1; margin-bottom:14px;">
+        <div style="font-size:0.85rem; line-height:1.7; color:#cbe7d1; margin-bottom:12px;">
           窗外下着永无止境的酸雨，穿梭飞空艇的巨幅霓虹广告投射在你的水泥墙上：<br>
           <em style="color:#fff;">“情绪稳定是公民的最高道德；痛苦是未被清除的系统漏洞。”</em><br><br>
-          上个月，你被上一家数据分析外包公司裁员。你的妹妹小柔因罕见的进行性神经硬化症卧床不起，每周需要支付 <strong>180 信用点</strong> 的昂贵神经拮抗剂；而房东的催租警告红单已经第 3 次贴在门锁上。<br>
+          上个月，你被原单位裁员。你的妹妹小柔因罕见的进行性神经硬化症卧床不起，每周需要支付 <strong>180 信用点</strong> 的昂贵神经拮抗剂；而房东的催租红单已经第 3 次贴在门锁上。<br>
           面前这台沉重的绿磷光 CRT 终端是你唯一的救命稻草——<strong>联合神经信托（United Neural Trust）</strong> 刚刚批准了你的兼职审查员申请。
         </div>
 
-        <!-- 协议交互签署区 -->
-        <div style="background:rgba(5,15,8,0.9); border:1px solid var(--p-green-dim); padding:12px; border-radius:4px; margin-bottom:14px;">
-          <div style="font-weight:bold; color:var(--p-amber); margin-bottom:8px; border-bottom:1px dashed var(--p-green-dark); padding-bottom:4px;">
+        <!-- 签约条款交互框 -->
+        <div style="background:rgba(5,15,8,0.9); border:1px solid var(--p-green-dim); padding:10px; border-radius:4px; margin-bottom:12px;">
+          <div style="font-weight:bold; color:var(--p-amber); margin-bottom:6px; border-bottom:1px dashed var(--p-green-dark); padding-bottom:4px;">
             《联合神经信托劳务派遣与无条件保密协议 (NDA-1988)》
           </div>
-          <div style="font-size:0.78rem; line-height:1.6; color:#a2cfad; max-height:110px; overflow-y:auto; padding-right:6px;">
+          <div style="font-size:0.78rem; line-height:1.6; color:#a2cfad; max-height:100px; overflow-y:auto;">
             第 1 条：乙方（审查员）自愿以按件计酬形式承接公民外包创伤记忆之平抑、剪辑与格式化作业。<br>
             第 4 条：乙方严禁截留、同情、转播或私自解密客户之受保护神经波形。违者没收全部信用点并追究刑事责任。<br>
-            <strong style="color:var(--p-red);">第 14 条 (隐藏免责款)：</strong>为维持神经网络算力均衡，乙方在登入终端期间，自愿无偿向总控机房让渡部分闲置脑波算力与突触缓存供算法池调度调度……
+            <strong style="color:var(--p-red);">第 14 条 (隐藏免责款)：</strong>为维持神经网络算力均衡，乙方在登入终端期间，自愿无偿向总控机房让渡部分闲置脑波算力与突触缓存供算法池调度……
           </div>
           <div style="margin-top:10px; display:flex; align-items:center; gap:10px; font-size:0.82rem;">
-            <span>受聘雇员签署签名:</span>
-            <input type="text" id="ipt-player-name" value="INSPECTOR-404" style="background:#000; border:1px solid var(--p-green); color:#fff; padding:4px 8px; font-family:var(--font-mono); width:160px;">
+            <span>审查员工号/姓名:</span>
+            <input type="text" id="ipt-player-name" value="INSPECTOR-404" style="background:#000; border:1px solid var(--p-green); color:#fff; padding:3px 6px; font-family:var(--font-mono); width:150px;">
             <button class="btn-terminal" id="btn-sign-nda">&gt;&gt; 签字画押，开启 Day 1 早班</button>
           </div>
         </div>
@@ -344,13 +753,14 @@
     });
   }
 
-  // --- [DAY 循环调度器] ---
   function startDay(dayNum) {
     State.day = dayNum;
     State.phase = 'ON_DUTY';
+    State.activeTab = 'work';
     State.sisterMedsPaid = false;
     State.rentPaid = false;
     State.pillTaken = false;
+    State.selectedDiaryChoice = null;
     updateHUD();
 
     renderMorningBriefing();
@@ -381,17 +791,17 @@
         <div class="intro-title">&gt;&gt; DAY ${State.day} // 晨间简报与排班系统</div>
         <div class="stamp-box" style="border-color:var(--p-green); color:var(--p-green);">MORNING DISPATCH</div>
         
-        <div style="background:rgba(5,15,8,0.7); border:1px solid var(--p-green-dim); padding:10px; margin:8px 0; font-size:0.85rem;">
+        <div style="background:rgba(5,15,8,0.7); border:1px solid var(--p-green-dim); padding:8px; margin:6px 0; font-size:0.82rem;">
           <strong style="color:var(--p-amber);">今日早报头条：</strong><br>
           ${headline}
         </div>
 
-        <div style="font-size:0.82rem; line-height:1.7; color:#cbe7d1; margin-bottom:14px;">
+        <div style="font-size:0.8rem; line-height:1.7; color:#cbe7d1; margin-bottom:12px;">
           ${memo}<br><br>
           <span style="color:var(--p-cyan);">【当前生活指标】</span><br>
           - 账户余额: <strong>${State.credits} CR</strong><br>
           - 妹妹身体状态: <strong>${State.sisterCondition}</strong> (今晚必须支付 180 CR 药物费用)<br>
-          - 房租到期倒计时: <strong>今晚必须缴纳房租</strong>
+          - 房租到期倒计时: <strong>今晚必须缴纳房租 (120 CR)</strong>
         </div>
 
         <div>
@@ -406,9 +816,6 @@
     });
   }
 
-  // ==========================================================================
-  // 5. 白天工作台工单 (ON DUTY CASES)
-  // ==========================================================================
   function loadDayCase(day, caseIndex) {
     State.activeCaseIndex = caseIndex;
     updateHUD();
@@ -421,17 +828,19 @@
     else if (day === 3 && caseIndex === 2) renderDay3Case2();
   }
 
-  // --- DAY 1 CASE 1: 初级程序员职场霸凌 ---
+  // --- DAY 1 CASE 1 ---
   function renderDay1Case1() {
     showNotice('DAY 1 - CASE #8921 LOADED');
+    const caseData = (DATA.CASE_STUDIES || {})['D1C1'];
+
     el.workspace.innerHTML = `
       <div class="view-container">
         <div style="display:flex; justify-content:space-between; align-items:center;">
           <div>
-            <strong style="color:#fff;">工单 #8921 // 情感脱敏切除申请 (初级程序员)</strong>
+            <strong style="color:#fff;">工单 ${caseData.code} // ${caseData.title}</strong>
             <span class="stamp-box">PENDING</span>
           </div>
-          <span style="font-size:0.75rem; color:#888;">工薪级客户 | 基础报酬: 150 CR</span>
+          <span style="font-size:0.75rem; color:#888;">客户: ${caseData.client} | 报酬: ${caseData.bounty} CR</span>
         </div>
 
         <div class="dual-pane">
@@ -518,17 +927,19 @@
     });
   }
 
-  // --- DAY 1 CASE 2: 独居老妇人与导盲犬悲伤 ---
+  // --- DAY 1 CASE 2 ---
   function renderDay1Case2() {
     showNotice('DAY 1 - CASE #7104 LOADED');
+    const caseData = (DATA.CASE_STUDIES || {})['D1C2'];
+
     el.workspace.innerHTML = `
       <div class="view-container">
         <div style="display:flex; justify-content:space-between; align-items:center;">
           <div>
-            <strong style="color:#fff;">工单 #7104 // 社区居委会强制申请 (独居老人)</strong>
+            <strong style="color:#fff;">工单 ${caseData.code} // ${caseData.title}</strong>
             <span class="stamp-box">COMMUNITY ORDER</span>
           </div>
-          <span style="font-size:0.75rem; color:#888;">基础报酬: 150 CR</span>
+          <span style="font-size:0.75rem; color:#888;">申请方: ${caseData.client} | 报酬: ${caseData.bounty} CR</span>
         </div>
 
         <div class="dual-pane">
@@ -563,7 +974,7 @@
             </div>
             <div class="doc-content">
               <div class="doc-statement">
-                <strong>社区网格长意见：</strong><br>
+                <strong>社区网格长通报：</strong><br>
                 “402室陈老太因老犬死后连续啼哭两天，导致整栋公寓的公共情绪指数下滑 4.2%。为免除整栋楼被扣减文明补贴，依城市《稳态健康法》第 9 条执行强制性悲伤剔除。”
               </div>
               <p style="font-size:0.78rem; color:#ffb833; margin-top:10px;">
@@ -591,27 +1002,29 @@
     document.getElementById('btn-c-comply').addEventListener('click', () => {
       sound.playSuccess();
       State.credits += 150;
-      finishShiftAndGoHome();
+      switchTab('apt');
     });
 
     document.getElementById('btn-c-rescue').addEventListener('click', () => {
       sound.playBeep(440, 0.15);
       State.empathyScore += 1;
-      finishShiftAndGoHome();
+      switchTab('apt');
     });
   }
 
-  // --- DAY 2 CASE 1: 童星演员与商业代言合同 ---
+  // --- DAY 2 CASE 1 ---
   function renderDay2Case1() {
     showNotice('DAY 2 - CASE #6409 LOADED');
+    const caseData = (DATA.CASE_STUDIES || {})['D2C1'];
+
     el.workspace.innerHTML = `
       <div class="view-container">
         <div style="display:flex; justify-content:space-between; align-items:center;">
           <div>
-            <strong style="color:#fff;">工单 #6409 // 9岁童星创伤脱敏 (星耀传媒经纪)</strong>
+            <strong style="color:#fff;">工单 ${caseData.code} // ${caseData.title}</strong>
             <span class="stamp-box" style="border-color:var(--p-amber); color:var(--p-amber);">COMMERCIAL</span>
           </div>
-          <span style="font-size:0.75rem; color:var(--p-amber);">报酬: 200 CR</span>
+          <span style="font-size:0.75rem; color:var(--p-amber);">报酬: ${caseData.bounty} CR</span>
         </div>
 
         <div class="dual-pane">
@@ -694,17 +1107,19 @@
     });
   }
 
-  // --- DAY 2 CASE 2: 退伍老兵与战区灭口黑匣子 ---
+  // --- DAY 2 CASE 2 ---
   function renderDay2Case2() {
     showNotice('DAY 2 - CASE #5218 LOADED');
+    const caseData = (DATA.CASE_STUDIES || {})['D2C2'];
+
     el.workspace.innerHTML = `
       <div class="view-container">
         <div style="display:flex; justify-content:space-between; align-items:center;">
           <div>
-            <strong style="color:#fff;">工单 #5218 // 境外安保老兵创伤应激综合征 (PTSD)</strong>
+            <strong style="color:#fff;">工单 ${caseData.code} // ${caseData.title}</strong>
             <span class="stamp-box">CLASSIFIED</span>
           </div>
-          <span style="font-size:0.75rem; color:#888;">特勤保密级 | 报酬: 250 CR</span>
+          <span style="font-size:0.75rem; color:#888;">特勤保密级 | 报酬: ${caseData.bounty} CR</span>
         </div>
 
         <div class="dual-pane">
@@ -768,29 +1183,31 @@
     document.getElementById('btn-c-comply').addEventListener('click', () => {
       sound.playSuccess();
       State.credits += 250;
-      finishShiftAndGoHome();
+      switchTab('apt');
     });
 
     document.getElementById('btn-c-leak').addEventListener('click', () => {
       sound.playError();
       State.empathyScore += 2;
-      State.credits += 150; // 反抗军暗中转账
+      State.credits += 150;
       State.rebelNetworkUnlocked = true;
-      finishShiftAndGoHome();
+      switchTab('apt');
     });
   }
 
-  // --- DAY 3 CASE 1: 天穹制药高管雨夜车祸逃逸 ---
+  // --- DAY 3 CASE 1 ---
   function renderDay3Case1() {
     showNotice('DAY 3 - CRITICAL CASE #0142 LOADED', true);
+    const caseData = (DATA.CASE_STUDIES || {})['D3C1'];
+
     el.workspace.innerHTML = `
       <div class="view-container">
         <div style="display:flex; justify-content:space-between; align-items:center;">
           <div>
-            <strong style="color:var(--p-amber); font-size:1.05rem;">特级加急工单 #0142 // 天穹制药执行董事</strong>
+            <strong style="color:var(--p-amber); font-size:1.05rem;">特级加急工单 ${caseData.code} // ${caseData.title}</strong>
             <span class="stamp-box" style="border-color:var(--p-red); color:var(--p-red);">TOP SECRET</span>
           </div>
-          <span style="font-size:0.75rem; color:var(--p-amber);">特权加急 | 报酬: 800 CR</span>
+          <span style="font-size:0.75rem; color:var(--p-amber);">报酬: ${caseData.bounty} CR</span>
         </div>
 
         <div class="dual-pane">
@@ -895,17 +1312,19 @@
     chatLog.scrollTop = chatLog.scrollHeight;
   }
 
-  // --- DAY 3 CASE 2: 反抗军黑客特洛伊木马 ---
+  // --- DAY 3 CASE 2 ---
   function renderDay3Case2() {
     showNotice('DAY 3 - CASE #9910 LOADED');
+    const caseData = (DATA.CASE_STUDIES || {})['D3C2'];
+
     el.workspace.innerHTML = `
       <div class="view-container">
         <div style="display:flex; justify-content:space-between; align-items:center;">
           <div>
-            <strong style="color:#fff;">工单 #9910 // 涉嫌散布逻辑病毒的被捕人员记忆包</strong>
+            <strong style="color:#fff;">工单 ${caseData.code} // ${caseData.title}</strong>
             <span class="stamp-box" style="border-color:var(--p-cyan); color:var(--p-cyan);">REBEL TROJAN</span>
           </div>
-          <span style="font-size:0.75rem; color:#888;">基础报酬: 300 CR</span>
+          <span style="font-size:0.75rem; color:#888;">基础报酬: ${caseData.bounty} CR</span>
         </div>
 
         <div class="dual-pane">
@@ -939,7 +1358,7 @@
                 “该员为‘遗忘者同盟’核心黑客。其脑部携带特洛伊病毒代码，若按官方流程需彻底执行【强电击物理粉碎】。”
               </div>
               <p style="font-size:0.78rem; color:var(--p-cyan);">
-                【系统提示】若在 520Hz 激活木马，你将获得终端底层 ROOT 提权代码 <code>0x404F</code>，这可能是打破循环的关键。
+                【系统提示】若在 520Hz 激活木马，你将获得终端底层 ROOT 提权代码 <code>0x404F</code>，并在检索库解锁冷冻仓位 <code>DORM-B-17</code>。
               </p>
             </div>
           </div>
@@ -969,203 +1388,18 @@
     document.getElementById('btn-c-comply').addEventListener('click', () => {
       sound.playSuccess();
       State.credits += 300;
-      finishShiftAndGoHome();
+      switchTab('apt');
     });
 
     document.getElementById('btn-c-trojan').addEventListener('click', () => {
       sound.playSuccess();
       State.empathyScore += 2;
       State.rebelNetworkUnlocked = true;
-      finishShiftAndGoHome();
+      switchTab('apt');
     });
   }
 
-  // ==========================================================================
-  // 6. 下班后的狭窄胶囊公寓 (OFF DUTY: APARTMENT TEXT ADVENTURE)
-  // ==========================================================================
-  function finishShiftAndGoHome() {
-    if (State.activeWaveformAnim) cancelAnimationFrame(State.activeWaveformAnim);
-    State.phase = 'OFF_DUTY';
-    updateHUD();
-
-    renderApartmentScene();
-  }
-
-  function renderApartmentScene() {
-    el.workspace.innerHTML = `
-      <div class="view-container apartment-view">
-        <div class="apt-banner">
-          <div class="apt-title">
-            <span>&gt;&gt; 狭窄胶囊公寓 // DAY ${State.day} 深夜 (OFF DUTY)</span>
-            <span style="font-size:0.8rem; color:var(--p-amber);">可用余额: ${State.credits} CR</span>
-          </div>
-          <div style="font-size:0.8rem; color:#a2cfad;">
-            天花板滴着发霉的冷水，霓虹光透过百叶窗照在粗糙的铁架床上。你的后颈神经插口还在微微发烫。
-          </div>
-        </div>
-
-        <div class="apt-grid">
-          <!-- 卡片 1: 账单与生存支出结算 -->
-          <div class="apt-card">
-            <div class="apt-card-header">
-              <span>[收支与药物结算 (LEDGER)]</span>
-              <span>必要支出</span>
-            </div>
-            <table class="ledger-table">
-              <tr>
-                <td>房东每日租金扣除:</td>
-                <td>-120 CR</td>
-              </tr>
-              <tr>
-                <td>妹妹神经拮抗剂 (Meds):</td>
-                <td>-180 CR</td>
-              </tr>
-              <tr>
-                <td>情绪稳定药丸“乐维他” (Pills):</td>
-                <td>-30 CR</td>
-              </tr>
-            </table>
-
-            <div style="display:flex; flex-direction:column; gap:6px; margin-top:8px;">
-              <button class="btn-terminal" id="apt-btn-rent" ${State.rentPaid || State.credits < 120 ? 'disabled' : ''}>
-                ${State.rentPaid ? '已缴纳房租' : '缴纳房租 (120 CR)'}
-              </button>
-              <button class="btn-terminal" id="apt-btn-meds" ${State.sisterMedsPaid || State.credits < 180 ? 'disabled' : ''}>
-                ${State.sisterMedsPaid ? '已给妹妹寄送药液' : '给妹妹寄药 (180 CR)'}
-              </button>
-              <button class="btn-terminal btn-amber" id="apt-btn-pill" ${State.pillTaken || State.credits < 30 ? 'disabled' : ''}>
-                ${State.pillTaken ? '已服用情绪药丸' : '购买并吞服“乐维他”抑制剂 (30 CR)'}
-              </button>
-            </div>
-          </div>
-
-          <!-- 卡片 2: 公寓环境交互探索 -->
-          <div class="apt-card">
-            <div class="apt-card-header">
-              <span>[室内设施与交互]</span>
-              <span>INTERACTIVE</span>
-            </div>
-            
-            <!-- 答录机 -->
-            <div>
-              <div style="font-size:0.78rem; font-weight:bold; color:var(--p-green); margin-bottom:4px; display:flex; justify-content:space-between;">
-                <span>磁带电话答录机:</span>
-                <button class="btn-terminal" id="apt-btn-tape" style="padding:2px 8px; font-size:0.7rem;">▶ 播放新留言</button>
-              </div>
-              <div class="tape-deck-box" id="apt-tape-text">
-                [就绪] 红色指示灯闪烁中，有一条未读留言。
-              </div>
-            </div>
-
-            <!-- 私人日记本 -->
-            <div style="margin-top:6px;">
-              <div style="font-size:0.78rem; font-weight:bold; color:var(--p-cyan); margin-bottom:4px;">
-                枕边日记本 (Day ${State.day}):
-              </div>
-              <div class="diary-box" id="apt-diary-text">
-                <!-- 动态填入日记 -->
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- 睡眠进入下一天 -->
-        <div class="action-dock" style="margin-top:10px;">
-          <button class="btn-terminal" id="apt-btn-sleep" style="padding:10px 24px; font-size:0.9rem;">
-            &gt;&gt; 关灯入眠，迎接 Day ${State.day + 1} 晨班
-          </button>
-        </div>
-      </div>
-    `;
-
-    // 绑定账单按钮
-    const btnRent = document.getElementById('apt-btn-rent');
-    const btnMeds = document.getElementById('apt-btn-meds');
-    const btnPill = document.getElementById('apt-btn-pill');
-
-    btnRent.addEventListener('click', () => {
-      State.credits -= 120;
-      State.rentPaid = true;
-      sound.playSuccess();
-      updateHUD();
-      renderApartmentScene();
-    });
-
-    btnMeds.addEventListener('click', () => {
-      if (State.day === 3) {
-        // Day 3 惊悚反转：系统报错妹妹账户注销！
-        sound.playError();
-        alert('【系统汇款被退回】错误代码 E-404：目标收款人 [小柔] 不存在。该户籍档案已于 1985 年注销。');
-        State.sisterCondition = '虚构';
-        updateHUD();
-        renderApartmentScene();
-        return;
-      }
-      State.credits -= 180;
-      State.sisterMedsPaid = true;
-      State.sisterCondition = '稳定';
-      sound.playSuccess();
-      updateHUD();
-      renderApartmentScene();
-    });
-
-    btnPill.addEventListener('click', () => {
-      State.credits -= 30;
-      State.pillTaken = true;
-      State.empathyScore = Math.max(0, State.empathyScore - 1);
-      sound.playBeep(300, 0.1);
-      updateHUD();
-      renderApartmentScene();
-    });
-
-    // 答录机逻辑
-    document.getElementById('apt-btn-tape').addEventListener('click', () => {
-      sound.playBeep(440, 0.08);
-      const tapeBox = document.getElementById('apt-tape-text');
-      if (State.day === 1) {
-        tapeBox.innerHTML = `
-          <strong style="color:#fff;">[妹妺柔弱的声音]：</strong><br>
-          “哥，医院送来的药水我收到了。你那份新工作……千万别太累了。今天天气很冷，你记得多喝热水……”
-        `;
-      } else if (State.day === 2) {
-        tapeBox.innerHTML = `
-          <strong style="color:var(--p-amber);">[变声加密电话]：</strong><br>
-          “404号审查员，你白天保留的战区黑匣子真相我们收到了。已向你的账户注入 150 赏金。注意，管理局已经开始在你们那栋楼排查同情者了……”
-        `;
-      } else if (State.day === 3) {
-        tapeBox.innerHTML = `
-          <strong style="color:var(--p-red);">[恐怖跳帧卡顿音]：</strong><br>
-          “哥……哥……[机械杂音持续嘶鸣]……正在校准受试者语音模型-04……情感诱导程序完成度 89%……继续维持生存幻觉……”
-        `;
-        sound.playError();
-      }
-    });
-
-    // 日记内容
-    const diaryBox = document.getElementById('apt-diary-text');
-    if (State.day === 1) {
-      diaryBox.textContent = 'Day 1: 终于有了稳定的报酬。那些被我删除记忆的人，真的会过得更幸福吗？至少小柔有救了。';
-    } else if (State.day === 2) {
-      diaryBox.textContent = 'Day 2: 翻开前面的日记，为什么有十几页被撕掉了？而且这本本子的纸张受潮泛黄得厉害，像是在这里放了几年一样。';
-    } else if (State.day === 3) {
-      diaryBox.innerHTML = `
-        <span style="color:var(--p-red);">Day 3: 这不是我的公寓。日历上的 1988 年是假的。我根本没有一个叫小柔的妹妹。冷冻仓代码……<strong>DORM-B-17</strong>……我是谁？</span>
-      `;
-    }
-
-    // 睡觉逻辑
-    document.getElementById('apt-btn-sleep').addEventListener('click', () => {
-      if (!State.sisterMedsPaid && State.day < 3) {
-        State.sisterCondition = '恶化';
-      }
-      sound.playBeep(220, 0.2);
-      startDay(State.day + 1);
-    });
-  }
-
-  // ==========================================================================
-  // 7. DAY 4 终局反转与四大黑镜结局 (CLIMAX & 4 ENDINGS)
-  // ==========================================================================
+  // --- DAY 4 CLIMAX ---
   function renderDay4Climax() {
     State.phase = 'CLIMAX';
     updateHUD();
@@ -1319,7 +1553,7 @@
   }
 
   // ==========================================================================
-  // 8. 交互解谜 Canvas 工具函数
+  // 8. 交互波形与频段 Canvas 算法
   // ==========================================================================
   function initGenericFilterCanvas(targetCut, targetDamp, onSolved) {
     const canvas = document.getElementById('c-canvas');
@@ -1340,7 +1574,6 @@
       ctx.fillStyle = '#030804';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      // 阈值警戒虚线
       const thresholdY = canvas.height * 0.35;
       ctx.strokeStyle = 'rgba(255, 51, 68, 0.45)';
       ctx.setLineDash([4, 4]);
@@ -1443,7 +1676,7 @@
   }
 
   // ==========================================================================
-  // 9. CLI 命令行解析器
+  // 9. 命令行 CLI 指令解析器
   // ==========================================================================
   el.cliInput.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') {
@@ -1476,6 +1709,15 @@
 
       case 'STATUS':
         showNotice(`DAY: ${State.day} | BALANCE: ${State.credits} CR | EMPATHY: ${State.empathyScore}`);
+        break;
+
+      case 'SEARCH':
+        switchTab('archive');
+        if (params[0]) renderArchiveView(params[0]);
+        break;
+
+      case 'BBS':
+        switchTab('bbs');
         break;
 
       case 'WHOAMI':
@@ -1519,7 +1761,7 @@
   }
 
   // ==========================================================================
-  // 10. 初始化启动
+  // 10. 初始化自检
   // ==========================================================================
   renderPrologue();
 
